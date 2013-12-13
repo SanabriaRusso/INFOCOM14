@@ -82,13 +82,7 @@ CSMA/ECA, WLAN, MAC, Collision-free, OpenFWWF.
 \maketitle
 
 \section{Introduction}\label{intro}
-In this demo, Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA)~\cite{barcelo2008lba} is implemented in commercial hardware. By setting up a WLAN, CSMA/ECA nodes are able to transmit saturated traffic to a wired station, where the transmission turns and number of received packets are recorded in order to derive a measure of throughput.
-
-During each test, it is possible to see how CSMA/ECA contention mechanism builds a collision-free schedule for successful transmitters. This is achieved by taking a look at each station's successful transmissions through a display filter in a sniffer station running Wireshark~\cite{combs2007wireshark}. All sniffed traffic is then processed at the end of each test to provide interesting metrics like: throughput, retransmissions, successful transmissions and average frame inter-arrival times for each station.
-
-\section{Carrier Sense Multiple Access with Enhanced Collision Avoindace}
-
-Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) is a totally distributed and collision-free MAC protocol for WLANs. It builds a collision-free schedule instructing successful contenders to pick a deterministic backoff, $B_{d}$, after successful transmissions. Collisions are handled as in Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA):
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA)~\cite{barcelo2008lba} is a totally distributed and collision-free MAC protocol for WLANs. It builds a collision-free schedule instructing successful contenders to pick a deterministic backoff, $B_{d}$, after successful transmissions. Collisions are handled as in Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA):
 \begin{itemize}
 	\item If the transmitter does not receive and \emph{ACK}nowledgement (ACK) from the receiver of an specific transmission, a collision is assumed.
 	\item The colliding node(s) increment its(their) backoff stage in one ($k\in[0,m]$, where $m$ is the maximum backoff stage of typical value $m=5$) and pick a random backoff, $B\in[0,CW(k)]$; where $CW(k)=2^{k}CW_{\min}$ is the Contention Window at backoff stage $k$, and $CW_{\min}$ is the minimum contention window with typical value $CW_{\min}=16$.
@@ -114,7 +108,7 @@ By making simple changes to the OpenFWWF~\cite{OpenFWWF} open firmware for WLAN 
 A CSMA/ECA station is prototyped using OpenFWWF firmware into Broadcom BCM4318 chipset Wireless Network Interface Controller (WNIC), which in turn is connected to a mini-PCI slot inside a PC Engines Alix 2d2~\cite{Alix2d2} station. This CSMA/ECA implementation in commercial hardware will be referred to as CSMA/ECA$_{\text{test}}$ from this point forward. Further implementations details using commercial PCs can be found in~\cite{BECA-test}.
 
 	\subsection{Testing scenario}
-	The testing scenario is composed by four stations running CSMA/ECA$_{\text{test}}$. Each station is placed at equal distance from an Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark in a separate wireless station so they can be visualised in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
+	The testing scenario is composed by four stations running CSMA/ECA$_{\text{test}}$. Each station is placed at equal distance from an Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark~\cite{combs2007wireshark} in a separate wireless station so they can be visualised in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
 	
 	\subsection{Processing the capture files}
 	In order to withdraw interesting statistics from the capture files, these are exported to Comma Separated Values (CSV) format files and processed using a parser written in Python, which is available at~\cite{pcapParser}.
@@ -144,7 +138,7 @@ When doing a throughput comparison between protocols, CSMA/ECA$_{\text{test}}$ s
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.7\linewidth, angle=-90]{figures/throughput-bar.eps}
-		\caption{Throughput for CSMA/CA and CSMA/ECA$_{\text{test}}$ stations.}
+		\caption{Throughput for CSMA/ECA$_{\text{test}}$ and CSMA/ECA stations.}
 		\label{fig:throughput}
 	\end{figure}
 
