@@ -24,6 +24,7 @@
 %\usepackage{caption}
 %\usepackage{subcaption}
 \usepackage{amsmath}
+\usepackage{paralist}
 
 \usepackage[hyphens]{url}
 
@@ -94,10 +95,10 @@ During each test, it is possible to see how CSMA/ECA contention mechanism builds
 \section{Carrier Sense Multiple Access with Enhanced Collision Avoindace}
 
 Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) is a totally distributed and collision-free MAC protocol for WLANs. It builds a collision-free schedule instructing successful contenders to pick a deterministic backoff, $B_{d}$, after successful transmissions. Collisions are handled as in Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA):
-\begin{itemize}
+\begin{compactitem}
 	\item If the transmitter does not receive and \emph{ACK}nowledgement (ACK) from the receiver of an specific transmission, a collision is assumed.
 	\item The colliding node(s) increment its(their) backoff stage in one ($k\in[0,m]$, where $m$ is the maximum backoff stage of typical value $m=5$) and pick a random backoff, $B\in[0,CW(k)]$; where $CW(k)=2^{k}CW_{\min}$ is the Contention Window at backoff stage $k$, and $CW_{\min}$ is the minimum contention window with typical value $CW_{\min}=16$.
-\end{itemize}
+\end{compactitem}
 
 	\begin{figure*}[tb]
 		\centering
@@ -117,10 +118,10 @@ By making simple changes to the OpenFWWF~\cite{OpenFWWF} open firmware for WLAN 
 
 A CSMA/ECA station is prototyped using OpenFWWF firmware into Broadcom BCM4318 chipset Wireless Network Interface Controller (WNIC), which in turn is connected to a mini-PCI slot inside a PC Engines Alix 2d2~\cite{Alix2d2} station. This CSMA/ECA implementation in commercial hardware will be referred to as CSMA/ECA$_{\text{test}}$ from this point forward. Further implementations details using commercial PCs can be found in~\cite{BECA-test}.
 
-	\subsection{Testing scenario}
+	%\subsection{Testing scenario}
 	The testing scenario is composed by four stations running CSMA/ECA$_{\text{test}}$. Each station is placed at equal distance from an Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet, as in Figure~\ref{fig:setup}. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark in a separate wireless station so they can be visualised in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
 	
-	\subsection{Processing the capture files}
+	%\subsection{Processing the capture files}
 	In order to withdraw interesting statistics from the capture files, these are exported to Comma Separated Values (CSV) format files and processed using a parser written in Python, which is available at~\cite{pcapParser}.
 	
 	\begin{figure}[htbp]
@@ -163,7 +164,7 @@ When comparing the throughput between protocols, CSMA/ECA$_{\text{test}}$ statio
 %CSMA/ECA$_{\text{test}}$ builds a collision-free schedule in a totally distributed way, resulting in a throughput increase relative to CSMA/CA.
 The demo shows how a totally distributed protocol can converge to a TDMA-like schedule by making small modifications to the WNIC's firmware; having as a result a throughput increase over the current MAC scheme in WLANs.
 
-This is an initial implementation in commercial hardware of the proposed protocol, but is demonstrates that the theoretical results can also be achieved in real implementations. Further performance improvements are possible by just prototyping the same protocol in hardware with more accurate clocks.
+Although this is an initial implementation in commercial hardware of the proposed protocol, it demonstrates that the theoretical results can be also achieved in real implementations. Further performance improvements are possible by just prototyping the same protocol in hardware with more accurate clocks.
 
 \section{Acknowledgements}
 This work was partially supported by the Spanish and the Catalan governments, through the projects CISNETS (TEC2012-32354) and AGAUR SGR2009-617, respectively.
