@@ -143,7 +143,7 @@ In Figure~\ref{fig:ECA-test}, four stations (STA) are shown running CSMA/ECA$_{\
 		\label{fig:ECA-test}
 	\end{figure}
 
-When doing a throughput comparison between protocols, CSMA/ECA$_{\text{test}}$ stations achieve greater throughput than CSMA/CA due to its better collision avoidance mechanism, as shown in Figure~\ref{fig:throughput}.
+When comparing the throughput between protocols, CSMA/ECA$_{\text{test}}$ stations achieve greater throughput than CSMA/CA due to its better collision avoidance mechanism, as shown in Figure~\ref{fig:throughput}.
 
 %	\begin{figure}[htbp]
 %		\centering
@@ -155,15 +155,15 @@ When doing a throughput comparison between protocols, CSMA/ECA$_{\text{test}}$ s
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.6\linewidth, angle=-90]{figures/throughput-bar.eps}
-		\caption{Throughput for CSMA/CA and CSMA/ECA$_{\text{test}}$ stations.}
+		\caption{Throughput comparison: CSMA/ECA$_{\text{test}}$'s 55\% improvement over CSMA/CA stations.}
 		\label{fig:throughput}
 	\end{figure}
 
 \section{Conclusions}
 %CSMA/ECA$_{\text{test}}$ builds a collision-free schedule in a totally distributed way, resulting in a throughput increase relative to CSMA/CA.
-The proposed demo shows how a totally distributed protocol can converge to a TDMA-like schedule by making small modifications to the WNIC's firmware; having as a result a throughput increase over the current MAC scheme in WLANs.
+The demo shows how a totally distributed protocol can converge to a TDMA-like schedule by making small modifications to the WNIC's firmware; having as a result a throughput increase over the current MAC scheme in WLANs.
 
-This is an initial implementation in commercial hardware of the proposed protocol. Further performance improvements are possible by just prototyping the same protocol in hardware with more accurate clocks.
+This is an initial implementation in commercial hardware of the proposed protocol, but is demonstrates that the theoretical results can also be achieved in real implementations. Further performance improvements are possible by just prototyping the same protocol in hardware with more accurate clocks.
 
 \section{Acknowledgements}
 This work was partially supported by the Spanish and the Catalan governments, through the projects CISNETS (TEC2012-32354) and AGAUR SGR2009-617, respectively.
