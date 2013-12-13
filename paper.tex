@@ -1,8 +1,13 @@
-\documentclass[a4paper,journal]{IEEEtran}
-%\documentclass[conference]{IEEEtran}
-%for using the therefore symbol
-%\usepackage{amssymb}
-%end
+\documentclass[conference]{IEEEtran}
+%% INFOCOM 2014 addition:
+\makeatletter
+\def\ps@headings{%
+\def\@oddhead{\mbox{}\scriptsize\rightmark \hfil \thepage}%
+\def\@evenhead{\scriptsize\thepage \hfil \leftmark\mbox{}}%
+\def\@oddfoot{}%
+\def\@evenfoot{}}
+\makeatother
+\pagestyle{headings}
 
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -30,7 +35,7 @@
 
 \begin{document}
 %opening
- \title{Enhancing the MAC backoff mechanism in WLANs}
+ \title{WLANs throughput improvement with CSMA/ECA}
 
 
 %A more simple output, useful when involving people from different affiliations
@@ -96,17 +101,16 @@ Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) is a 
 
 	\begin{figure*}[tb]
 		\centering
-		\includegraphics[width=0.8\linewidth]{figures/basicECA.eps}
+		\includegraphics[width=0.7\linewidth]{figures/basicECA.eps}
 		\caption{CSMA/ECA with four stations in saturation. ($B_{d}=7$.)}
 		\label{fig:BECA}
 	\end{figure*}
-
 
 In Figure~\ref{fig:BECA}, four \emph{STA}tions (STA) are involved in a contention to access the channel using CSMA/ECA. The horizontal lines represent time and are composed of empty slots and transmissions. Each empty slot decrements the backoff in one, so the numbers indicate how many empty slots are left for the expiration of the corresponding STA's backoff. At the first slot, the outline points out that STA 3 and STA 4 picked the same random backoff and will eventually collide. Upon collision, these two stations will recompute a random backoff.
 
 It is not until a station is able to make a successful transmission that it changes to a deterministic backoff. In Figure~\ref{fig:BECA}, STA 4 is able to successfully transmit after the random backoff expires, and then it generates a deterministic backoff ($B_{d}=7$) for further transmissions. This way CSMA/ECA builds a collision-free schedule for successful transmitters.
 
-\section{Demo: getting greater throughput with CSMA/ECA}\label{prototype}
+\section{Demo}\label{prototype}
 By making simple changes to the OpenFWWF~\cite{OpenFWWF} open firmware for WLAN network cards, the built-in MAC is modified to mimic CSMA/ECA behavior.
 
 %This modification consists on checking the value of the current contention window ($CW_{\text{current}}$). If $CW_{\text{current}}=CW_{\min}$, then it is assumed that it is either the station's first transmission attempt or it successfully transmitted, changing to a deterministic backoff.
@@ -114,10 +118,17 @@ By making simple changes to the OpenFWWF~\cite{OpenFWWF} open firmware for WLAN 
 A CSMA/ECA station is prototyped using OpenFWWF firmware into Broadcom BCM4318 chipset Wireless Network Interface Controller (WNIC), which in turn is connected to a mini-PCI slot inside a PC Engines Alix 2d2~\cite{Alix2d2} station. This CSMA/ECA implementation in commercial hardware will be referred to as CSMA/ECA$_{\text{test}}$ from this point forward. Further implementations details using commercial PCs can be found in~\cite{BECA-test}.
 
 	\subsection{Testing scenario}
-	The testing scenario is composed by four stations running CSMA/ECA$_{\text{test}}$. Each station is placed at equal distance from an Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark in a separate wireless station so they can be visualised in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
+	The testing scenario is composed by four stations running CSMA/ECA$_{\text{test}}$. Each station is placed at equal distance from an Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet, as in Figure~\ref{fig:setup}. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark in a separate wireless station so they can be visualised in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
 	
 	\subsection{Processing the capture files}
 	In order to withdraw interesting statistics from the capture files, these are exported to Comma Separated Values (CSV) format files and processed using a parser written in Python, which is available at~\cite{pcapParser}.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.8\linewidth]{figures/setup.eps}
+		\caption{Demo setup: four Alix 2d2, Iperf server and an AP.}
+		\label{fig:setup}
+	\end{figure}
 	
 \section{Results}\label{results}
 %CSMA/ECA is able to build a collision-free schedule for successful contenders, as in Figure~\ref{fig:BECA}. When testing CSMA/ECA$_{\text{test}}$, stations are expected to alternate transmissions due to the deterministic backoff after successful transmissions. 
@@ -127,7 +138,7 @@ In Figure~\ref{fig:ECA-test}, four stations (STA) are shown running CSMA/ECA$_{\
 
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.9\linewidth, angle=-90]{figures/timeOfArrivals-points-multiplot.eps}
+		\includegraphics[width=0.75\linewidth, angle=-90]{figures/timeOfArrivals-points-multiplot.eps}
 		\caption{CSMA/ECA$_{\text{test}}$ and CSMA/CA transmissions under saturation.}
 		\label{fig:ECA-test}
 	\end{figure}
@@ -143,7 +154,7 @@ When doing a throughput comparison between protocols, CSMA/ECA$_{\text{test}}$ s
 	
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.7\linewidth, angle=-90]{figures/throughput-bar.eps}
+		\includegraphics[width=0.6\linewidth, angle=-90]{figures/throughput-bar.eps}
 		\caption{Throughput for CSMA/CA and CSMA/ECA$_{\text{test}}$ stations.}
 		\label{fig:throughput}
 	\end{figure}
