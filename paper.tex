@@ -1,0 +1,157 @@
+\documentclass[a4paper,journal]{IEEEtran}
+%\documentclass[conference]{IEEEtran}
+%for using the therefore symbol
+%\usepackage{amssymb}
+%end
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{color, colortbl}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{footnote}
+\usepackage{cite}
+%The below is used to add notes to tables without disrupting the IEEEtran format
+\usepackage{threeparttable}
+%Multiple figures in a row
+%\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{amsmath}
+
+\usepackage[hyphens]{url}
+
+% Disable below if wanting to comply exclusively to conference mode of IEEEtran
+% \IEEEoverridecommandlockouts
+
+
+\usepackage{lipsum}
+
+\begin{document}
+%opening
+ \title{Enhancing the MAC backoff mechanism in WLANs}
+
+
+%A more simple output, useful when involving people from different affiliations
+  \author{
+      \IEEEauthorblockN{Luis Sanabria-Russo\IEEEauthorrefmark{0}, Jaume Barcelo\IEEEauthorrefmark{0}, Boris Bellalta\IEEEauthorrefmark{0}}\\
+      \IEEEauthorblockA{\IEEEauthorrefmark{0}Universitat Pompeu Fabra, Barcelona, Spain
+      \\\{\small{\texttt{luis.sanabria, jaume.barcelo, boris.bellalta}}\}@upf.edu}
+  }
+
+%\author{Luis Sanabria-Russo, Jaume Barcelo, Boris Bellalta \\
+%		NeTS Research Group at\\
+%		Universitat Pompeu Fabra, Barcelona, Spain\\
+%		\texttt{Luis.Sanabria@upf.edu}}
+
+%This is the style of three columns, as indicated in IEEEtran
+% \author{\IEEEauthorblockN{Luis Sanabria-Russo}
+%  \IEEEauthorblockA{Department of Information\\
+%  and Communications Technologies\\
+%  Universitat Pompeu Fabra\\
+%  Barcelona, Spain\\
+%  Email: luis.sanabria@upf.edu}
+%  \and
+%  \IEEEauthorblockN{Jaume Barcelo}
+%  \IEEEauthorblockA{Department of Information\\
+%  and Communications Technologies\\
+%  Universitat Pompeu Fabra\\
+%  Barcelona, Spain\\
+%  Email: cristina.cano@upf.edu} 
+%  \and
+%  \IEEEauthorblockN{Boris Bellalta}
+%  \IEEEauthorblockA{Department of Information\\
+%  and Communications Technologies\\
+%  Universitat Pompeu Fabra\\
+%  Barcelona, Spain\\
+%  Email: boris.bellalta@upf.edu}}
+
+
+\maketitle
+
+\begin{abstract}
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) is a totally distributed, collision-free MAC protocol for WLANs capable of achieving greater throughput than the current contention mechanism in WLANs. It does so changing to a deterministic backoff after successful transmissions, building a collision-free schedule for successful transmitters. This work details a first hardware implementation of CSMA/ECA using commercial hardware and OpenFWWF. Results evidence a better collision avoidance by showing a periodic alternation of transmitters following the deterministic backoff.
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+CSMA/ECA, WLAN, MAC, Collision-free, OpenFWWF.
+\end{IEEEkeywords}
+
+\maketitle
+
+\section{Introduction}\label{intro}
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA)~\cite{barcelo2008lba} is a totally distributed and collision-free MAC protocol for WLANs. It builds a collision-free schedule instructing successful contenders to pick a deterministic backoff, $B_{d}$, after successful transmissions. Collisions are handled as in Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA):
+\begin{itemize}
+	\item If the transmitter does not receive and \emph{ACK}nowledgement (ACK) from the receiver of an specific transmission, a collision is assumed.
+	\item The colliding node(s) increment its(their) backoff stage in one ($k\in[0,m]$, where $m$ is the maximum backoff stage of typical value $m=5$) and pick a random backoff, $B\in[0,CW(k)]$; where $CW(k)=2^{k}CW_{\min}$ is the Contention Window at backoff stage $k$, and $CW_{\min}$ is the minimum contention window with typical value $CW_{\min}=16$.
+\end{itemize}
+
+	\begin{figure*}[tb]
+		\centering
+		\includegraphics[width=0.8\linewidth]{figures/basicECA.eps}
+		\caption{CSMA/ECA with four stations in saturation. ($B_{d}=7$.)}
+		\label{fig:BECA}
+	\end{figure*}
+
+
+In Figure~\ref{fig:BECA}, four \emph{STA}tions (STA) are involved in a contention to access the channel using CSMA/ECA. The horizontal lines represent time and are composed of empty slots and transmissions. Each empty slot decrements the backoff in one, so the numbers indicate how many empty slots are left for the expiration of the corresponding STA's backoff. At the first slot, the outline points out that STA 3 and STA 4 picked the same random backoff and will eventually collide. Upon collision, these two stations will recompute a random backoff.
+
+It is not until a station is able to make a successful transmission that it changes to a deterministic backoff. In Figure~\ref{fig:BECA}, STA 4 is able to successfully transmit after the random backoff expires, and then it generates a deterministic backoff ($B_{d}=7$) for further transmissions. This way CSMA/ECA builds a collision-free schedule for successful transmitters.
+
+\section{Demo: getting greater throughput with CSMA/ECA}\label{prototype}
+By making simple changes to the OpenFWWF~\cite{OpenFWWF} open firmware for WLAN network cards, the built-in MAC is modified to mimic CSMA/ECA behavior.
+
+%This modification consists on checking the value of the current contention window ($CW_{\text{current}}$). If $CW_{\text{current}}=CW_{\min}$, then it is assumed that it is either the station's first transmission attempt or it successfully transmitted, changing to a deterministic backoff.
+
+A CSMA/ECA station is prototyped using OpenFWWF firmware into Broadcom BCM4318 chipset Wireless Network Interface Controller (WNIC), which in turn is connected to a mini-PCI slot inside a PC Engines Alix 2d2~\cite{Alix2d2} station. This CSMA/ECA implementation in commercial hardware will be referred to as CSMA/ECA$_{\text{test}}$ from this point forward. Further implementations details using commercial PCs can be found in~\cite{BECA-test}.
+
+	\subsection{Testing scenario}
+	The testing scenario is composed by four stations running CSMA/ECA$_{\text{test}}$. Each station is placed at equal distance from an Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark~\cite{combs2007wireshark} in a separate wireless station so they can be visualised in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
+	
+	\subsection{Processing the capture files}
+	In order to withdraw interesting statistics from the capture files, these are exported to Comma Separated Values (CSV) format files and processed using a parser written in Python, which is available at~\cite{pcapParser}.
+	
+\section{Results}\label{results}
+%CSMA/ECA is able to build a collision-free schedule for successful contenders, as in Figure~\ref{fig:BECA}. When testing CSMA/ECA$_{\text{test}}$, stations are expected to alternate transmissions due to the deterministic backoff after successful transmissions. 
+In Figure~\ref{fig:ECA-test}, four stations (STA) are shown running CSMA/ECA$_{\text{test}}$ and CSMA/CA in separate tests. Each point identifies a transmitter, while the horizontal axis marks the time. The upper side of the figure shows CSMA/ECA$_{\text{test}}$, where it is possible to see the periodic transmissions of each station. CSMA/CA transmitters (below) access the channel according to a random backoff: being prone to collisions. 
+
+%Figure~\ref{fig:histogram} shows a histogram of frame Inter-arrival times, where the CSMA/ECA$_{\text{test}}$'s deterministic backoff originates an almost constant inter-arrival time; while CSMA/CA stations' inter-arrival times are spread over a range of different values of time.
+
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\linewidth, angle=-90]{figures/timeOfArrivals-points-multiplot.eps}
+		\caption{CSMA/ECA$_{\text{test}}$ and CSMA/CA transmissions under saturation.}
+		\label{fig:ECA-test}
+	\end{figure}
+
+When doing a throughput comparison between protocols, CSMA/ECA$_{\text{test}}$ stations achieve greater throughput than CSMA/CA due to its better collision avoidance mechanism, as shown in Figure~\ref{fig:throughput}.
+
+%	\begin{figure}[htbp]
+%		\centering
+%		\includegraphics[width=0.9\linewidth, angle=-90]{figures/histogram.eps}
+%		\caption{Sample of Inter-arrival times for CSMA/ECA$_{\text{test}}$ and CSMA/ECA.}
+%		\label{fig:histogram}
+%	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.7\linewidth, angle=-90]{figures/throughput-bar.eps}
+		\caption{Throughput for CSMA/ECA$_{\text{test}}$ and CSMA/ECA stations.}
+		\label{fig:throughput}
+	\end{figure}
+
+\section{Conclusions}
+%CSMA/ECA$_{\text{test}}$ builds a collision-free schedule in a totally distributed way, resulting in a throughput increase relative to CSMA/CA.
+The proposed demo shows how a totally distributed protocol can converge to a TDMA-like schedule by making small modifications to the WNIC's firmware; having as a result a throughput increase over the current MAC scheme in WLANs.
+
+This is an initial implementation in commercial hardware of the proposed protocol. Further performance improvements are possible by just prototyping the same protocol in hardware with more accurate clocks.
+
+\section{Acknowledgements}
+This work was partially supported by the Spanish and the Catalan governments, through the projects CISNETS (TEC2012-32354) and AGAUR SGR2009-617, respectively.
+
+\bibliographystyle{IEEEtran}
+\bibliography{../ref}
+
+\end{document}
