@@ -133,18 +133,7 @@ A CSMA/ECA station is prototyped using OpenFWWF firmware into Broadcom BCM4318 c
 	
 \section{Results}\label{results}
 %CSMA/ECA is able to build a collision-free schedule for successful contenders, as in Figure~\ref{fig:BECA}. When testing CSMA/ECA$_{\text{test}}$, stations are expected to alternate transmissions due to the deterministic backoff after successful transmissions. 
-In Figure~\ref{fig:ECA-test}, four stations (STA) are shown running CSMA/ECA$_{\text{test}}$ and CSMA/CA in separate tests. Each point identifies a transmitter, while the horizontal axis marks the time. The upper side of the figure shows CSMA/ECA$_{\text{test}}$, where it is possible to see the periodic transmissions of each station. CSMA/CA transmitters (below) access the channel according to a random backoff: being prone to collisions. 
-
-%Figure~\ref{fig:histogram} shows a histogram of frame Inter-arrival times, where the CSMA/ECA$_{\text{test}}$'s deterministic backoff originates an almost constant inter-arrival time; while CSMA/CA stations' inter-arrival times are spread over a range of different values of time.
-
-	\begin{figure}[htbp]
-		\centering
-		\includegraphics[width=0.75\linewidth, angle=-90]{figures/timeOfArrivals-points-multiplot.eps}
-		\caption{CSMA/ECA$_{\text{test}}$ and CSMA/CA transmissions under saturation.}
-		\label{fig:ECA-test}
-	\end{figure}
-
-When comparing the throughput between protocols, CSMA/ECA$_{\text{test}}$ stations achieve greater throughput than CSMA/CA due to its better collision avoidance mechanism, as shown in Figure~\ref{fig:throughput}.
+CSMA/ECA$_{\text{test}}$ stations achieve greater throughput than CSMA/CA due to the better collision avoidance mechanism, as shown in Figure~\ref{fig:throughput}.
 
 %	\begin{figure}[htbp]
 %		\centering
@@ -155,10 +144,24 @@ When comparing the throughput between protocols, CSMA/ECA$_{\text{test}}$ statio
 	
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.6\linewidth, angle=-90]{figures/throughput-bar.eps}
-		\caption{CSMA/ECA$_{\text{test}}$'s approximately 50\% improvement over CSMA/CA stations.}
+		\includegraphics[width=0.6\linewidth, angle=-90]{figures/throughput-bar-limit.eps}
+		\caption{CSMA/ECA$_{\text{test}}$'s approximately 50\% improvement over CSMA/CA stations. ($CW_{\min}=32,~B_{d}=16$.)}
 		\label{fig:throughput}
 	\end{figure}
+
+Even though a higher throughput is achieved, CSMA/ECA$_{\text{test}}$ nodes do not maintain a collision-free schedule all the time. Stations are unable to transmit in the exact slot indicated by the deterministic backoff, resulting in a slight drift in time of their transmissions, increasing the probability of collisions. Figure~\ref{fig:ECA-test} shows the schedule for CSMA/ECA$_{\text{test}}$ (up) and CSMA/CA (down), where a drift can be appreciated at CSMA/ECA$_{\text{test}}$:STA 1's second transmission. Similar effects resulting in collisions are responsible for the deviation from the maximum achievable throughput represented by the dotted line in Figure~\ref{fig:throughput}.
+
+%, four stations (STA) are shown running CSMA/ECA$_{\text{test}}$ and CSMA/CA in separate tests. Each point identifies a transmitter, while the horizontal axis marks the time. The upper side of the figure shows CSMA/ECA$_{\text{test}}$, where it is possible to see the periodic transmissions of each station. CSMA/CA transmitters (below) access the channel according to a random backoff: being prone to collisions. 
+
+%Figure~\ref{fig:histogram} shows a histogram of frame Inter-arrival times, where the CSMA/ECA$_{\text{test}}$'s deterministic backoff originates an almost constant inter-arrival time; while CSMA/CA stations' inter-arrival times are spread over a range of different values of time.
+
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.75\linewidth, angle=-90]{figures/timeOfArrivals-points-multiplot.eps}
+		\caption{CSMA/ECA$_{\text{test}}$ and CSMA/CA transmissions under saturation.}
+		\label{fig:ECA-test}
+	\end{figure}
+
 
 \section{Conclusions}
 %CSMA/ECA$_{\text{test}}$ builds a collision-free schedule in a totally distributed way, resulting in a throughput increase relative to CSMA/CA.
