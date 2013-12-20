@@ -77,7 +77,9 @@
 \maketitle
 
 \begin{abstract}
-Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) is a totally distributed, collision-free MAC protocol for WLANs capable of achieving greater throughput than the current contention mechanism in WLANs. It does so by changing to a deterministic backoff after successful transmissions, building a collision-free schedule for successful transmitters. This demo shows how CSMA/ECA outperforms the current MAC for WLANs in terms of throughput. This first CSMA/ECA implementation has been done using commercial hardware and OpenFWWF. Besides a throughput gain, results evidence a better collision avoidance by showing a periodic alternation of transmitters following the deterministic backoff.
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) is a distributed MAC protocol for WLANs, capable of achieving greater throughput than the current contention mechanism in WLANs. It does so by changing to a deterministic backoff after successful transmissions, which leads to a collision-free schedule that under ideal conditions can be permanently maintained. This demo shows the first implementation of CSMA/ECA using commercial hardware and OpenFWWF in a realistic network testbed. Results show how CSMA/ECA outperforms the current MAC for WLANs in terms of throughput, even through a permanent collision-free schedule cannot be maintained due to unideal practical conditions. 
+
+%Besides a throughput gain, results evidence a better collision avoidance by showing a periodic alternation of transmitters following the deterministic backoff.
 
 \end{abstract}
 
@@ -88,7 +90,7 @@ CSMA/ECA, WLAN, MAC, Collision-free, OpenFWWF.
 \maketitle
 
 \section{Introduction}\label{intro}
-In this demo we show the operation of a WLAN using Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA)~\cite{barcelo2008lba} and how it outperforms the same network setup using the current MAC for WLANs. Specifically, we observe how four stations transmit messages to a wired station through a commercial Access Point (AP) (see Figure~\ref{fig:setup}). The transmissions and number of received packets are recorded in order to derive the achieved throughput.
+In this demo we show the operation of a WLAN using Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA)~\cite{barcelo2008lba} and how it outperforms the same network setup using the current MAC for WLANs. The testbed consists of four stations transmitting messages to a wired Server/Sniffer station through a commercial Access Point (AP) (see Figure~\ref{fig:setup}). 
 
 	\begin{figure}[htbp]
 		\centering
@@ -97,43 +99,41 @@ In this demo we show the operation of a WLAN using Carrier Sense Multiple Access
 		\label{fig:setup}
 	\end{figure}
 
-During each test, it is possible to see how CSMA/ECA contention mechanism builds a collision-free schedule for successful transmitters. This is achieved by taking a look at each station's successful transmissions in a sniffer station running Wireshark~\cite{combs2007wireshark}. All sniffed traffic is then processed at the end of each test to provide interesting metrics like: throughput, retransmissions, successful transmissions and average frame inter-arrival times for each station.
+During the demo, the stations are running CSMA/ECA as their MAC protocol. The Sniffer records the transmissions' timestamps, transmitter identity, and the number of received packets. This information is then processed at the end of each test to provide metrics such as: throughput, retransmissions, successful transmissions, and average frame inter-arrival times for each station.
+
+%During each test, it is possible to see how CSMA/ECA contention mechanism builds a collision-free schedule for successful transmitters. This is achieved by taking a look at each station's successful transmissions in a sniffer station running Wireshark~\cite{combs2007wireshark}.
 
 \section{Carrier Sense Multiple Access with Enhanced Collision Avoindace}
 
-Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) is a totally distributed and collision-free MAC protocol for WLANs. Stations build a collision-free schedule picking a deterministic backoff, $B_{d}$, after successful transmissions. Collisions are handled as in Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA):
-\begin{compactitem}
-	\item If the transmitter does not receive an acknowledgement (ACK) from the receiver of a specific transmission, a collision is assumed.
-	\item The colliding nodes increment their backoff stage, $k$, in one ($k\in[0,m]$, where $m$ is the maximum backoff stage of typical value $m=5$) and pick a random backoff, $B\sim U[0,2^{k}CW_{\min}]$, where $CW_{\min}$ is the minimum contention window with typical value $CW_{\min}=16$.
-\end{compactitem}
+CSMA/ECA behaves exactly as Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA), except that after a successful transmission the transmitting station picks a deterministic backoff, $B_{d}$, and transmits periodically until a failed transmission. A failed transmission is indicated by the absence of an acknowledgement (ACK) from the receiver and may be caused by collisions or channel errors.
+
+As in CSMA/CA, a node involved in a failed transmission increments its backoff stage, $k$, by one ($k\in[0,m]$, where $m$ is the maximum backoff stage of typical value $m=5$) and picks a random backoff, $B\sim \mathcal{U}[0,2^{k}CW_{\min}]$, where $CW_{\min}$ is the minimum contention window with typical value $CW_{\min}=16$.
 
 	\begin{figure*}[tb]
 		\centering
 		\includegraphics[width=0.7\linewidth]{figures/basicECA-TIGHT.eps}
-		\caption{CSMA/ECA with four stations in saturation. ($B_{d}=7$.)}
+		\caption{CSMA/ECA with four stations in saturation ($B_{d}=7$).}
 		\label{fig:BECA}
 	\end{figure*}
 
-In Figure~\ref{fig:BECA}, four stations (STA) are involved in a contention to access the channel using CSMA/ECA. The horizontal lines represent time and are composed of empty slots and transmissions. Each empty slot decrements the backoff by one, so the numbers indicate how many empty slots are left until the expiration of the corresponding STA's backoff. At the first slot, the outline points out that STA 3 and STA 4 have picked the same random backoff and will eventually collide. Upon collision, these two stations will recompute a random backoff.
+Figure~\ref{fig:BECA} shows the CSMA/ECA behavior under ideal conditions. Four stations (STA) are involved in a contention to access the channel using CSMA/ECA. The horizontal lines represent time and are composed of empty slots and transmissions. Each empty slot decrements the backoff by one, so the numbers indicate how many empty slots are left until the expiration of the corresponding STA's backoff. At the first slot, the outline points out that STA 3 and STA 4 have picked the same random backoff and will eventually collide. Upon collision, these two stations will recompute a random backoff.
 
-It is not until a station is able to make a successful transmission that it changes to a deterministic backoff. In Figure~\ref{fig:BECA}, STA 4 is able to successfully transmit after the random backoff expires, and then it generates a deterministic backoff ($B_{d}=7$) for the next transmission. This way CSMA/ECA builds a collision-free schedule for successful transmitters. Further extensions to CSMA/ECA enable it to construct a collision-free schedule for many more contenders~\cite{research2standards}.
+It is not until a station is able to make a successful transmission that it changes to a deterministic backoff. In Figure~\ref{fig:BECA}, STA 4 is able to successfully transmit after the random backoff expires, and then it generates a deterministic backoff ($B_{d}=7$) for the next transmission. Under ideal conditions, transmissions fail only due to collisions. In this case, once all stations transition into the deterministic backoff mode, a perpetual collision-free schedule is reached. Further extensions to CSMA/ECA enable it to construct a collision-free schedule for many more contenders~\cite{research2standards}.
 
 \section{Demo}\label{prototype}
-By making simple changes to the OpenFWWF~\cite{OpenFWWF} open firmware for WLAN network cards, the built-in MAC is modified to mimic CSMA/ECA behavior.
-
 %This modification consists on checking the value of the current contention window ($CW_{\text{current}}$). If $CW_{\text{current}}=CW_{\min}$, then it is assumed that it is either the station's first transmission attempt or it successfully transmitted, changing to a deterministic backoff.
 
-A CSMA/ECA station is prototyped using OpenFWWF firmware into Broadcom BCM4318 chipset Wireless Network Interface Controller (WNIC), which is connected to a mini-PCI slot inside a PC Engines Alix 2d2~\cite{Alix2d2} station. This CSMA/ECA implementation in commercial hardware will be referred to as CSMA/ECA$_{\text{test}}$ from this point forward. Further implementation details using commercial PCs can be found in~\cite{BECA-test}.
+We prototyped a CSMA/ECA station using OpenFWWF firmware into Broadcom BCM4318 chipset Wireless Network Interface Controller (WNIC), which is connected to a mini-PCI slot inside a PC Engines Alix 2d2~\cite{Alix2d2} station. By making simple changes to the OpenFWWF~\cite{OpenFWWF} open firmware for WLAN network cards, the built-in MAC can be modified to mimic CSMA/ECA behavior. This CSMA/ECA implementation in commercial hardware will be referred to as CSMA/ECA$_{\text{test}}$ hereafter. Further implementation details using commercial PCs can be found in~\cite{BECA-test}.
 
 	%\subsection{Testing scenario}
-	The testing scenario is composed of four saturated stations running CSMA/ECA$_{\text{test}}$. Each station is placed at equal distance from the Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet, as in Figure~\ref{fig:setup}. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark in a separate wireless station so they can be visualised in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
+	The testing scenario is composed of four saturated stations running CSMA/ECA$_{\text{test}}$. Each station is placed at similar distance from the Access Point (AP), to which an Iperf~\cite{tirumala2005iperf} server is connected via Ethernet, as in Figure~\ref{fig:setup}. Stations are set to transmit dummy 1470 byte UDP segments at 65 Mbps towards the server, and the transmissions are captured using Wireshark~\cite{combs2007wireshark} in a separate wireless station so they can be visualized in real time or saved for processing at a later time. The transmission speed is set to 65 Mbps to purposely saturate the stations.
 	
 	%\subsection{Processing the capture files}
-	In order to withdraw interesting statistics from the capture files, they are exported to Comma Separated Values (CSV) format files and processed using a parser written in Python, which is available at~\cite{pcapParser}.
+	In order to extract useful statistics from the capture files, they are exported to Comma Separated Values (CSV) format files and processed using a parser written in Python, which is available online~\cite{pcapParser}.
 	
 \section{Results}\label{results}
 %CSMA/ECA is able to build a collision-free schedule for successful contenders, as in Figure~\ref{fig:BECA}. When testing CSMA/ECA$_{\text{test}}$, stations are expected to alternate transmissions due to the deterministic backoff after successful transmissions. 
-CSMA/ECA$_{\text{test}}$ stations achieve greater throughput than CSMA/CA due to the better collision avoidance mechanism, as shown in Figure~\ref{fig:throughput}.
+Figure~\ref{fig:throughput} shows a comparison between CSMA/ECA$_{\text{test}}$ and CSMA/CA implemented in the same testbed. Even though CSMA/ECA$_{\text{test}}$ cannot maintain a collision-free schedule due to unideal practical conditions, it can be seen that it achieves better throughput than CSMA/CA, due to a reduction in the number of collisions. This is because stations that have switched to a deterministic backoff enjoy a lower probability of collision. The dashed line represents the achievable throughput of a CSMA/ECA station under ideal conditions (no channel errors or clock drift). 
 
 %	\begin{figure}[htbp]
 %		\centering
@@ -145,11 +145,13 @@ CSMA/ECA$_{\text{test}}$ stations achieve greater throughput than CSMA/CA due to
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.6\linewidth, angle=-90]{figures/throughput-bar-limit.eps}
-		\caption{CSMA/ECA$_{\text{test}}$'s approximately 50\% improvement over CSMA/CA stations. ($CW_{\min}=32,~B_{d}=16$.)}
+		\caption{CSMA/ECA$_{\text{test}}$'s approximately 50\% improvement over CSMA/CA stations. Both protocols have $CW_{\min}=32$ and for CSMA/ECA$_{\text{test}}$, $B_{d}=16$. This guarantees a fair comparison by ensuring the same expected backoff value after successful transmissions in both protocols.}
 		\label{fig:throughput}
 	\end{figure}
 
-Even though a higher throughput is achieved, CSMA/ECA$_{\text{test}}$ nodes do not maintain a collision-free schedule all the time. Stations are unable to transmit in the exact slot indicated by the deterministic backoff, resulting in a slight drift in time of their transmissions, increasing the probability of collisions. Figure~\ref{fig:ECA-test} shows the schedule for CSMA/ECA$_{\text{test}}$ (up) and CSMA/CA (down), where a drift can be appreciated at CSMA/ECA$_{\text{test}}$:STA 1's second transmission. Similar effects resulting in collisions are responsible for the deviation from the maximum achievable throughput represented by the dotted line in Figure~\ref{fig:throughput}.
+Under unideal conditions, a collision-free schedule is occasionally reached but it is disrupted as soon as a transmission is corrupted by noise, or when there is a slot drift due to hardware clock inaccuracies. Figure~\ref{fig:ECA-test} shows a sequence of transmissions over a ten-millisecond period. In this particular snapshot, all stations are transmitting with deterministic backoff and a periodic schedule is observed. However, a drift can be appreciated in STA-1's second transmission, which in time can cause a collision and disrupt the collision-free behavior.
+
+%Even though a higher throughput is achieved, CSMA/ECA$_{\text{test}}$ nodes do not maintain a collision-free schedule all the time. Stations are unable to transmit in the exact slot indicated by the deterministic backoff, resulting in a slight drift in time of their transmissions, increasing the probability of collisions. Figure~\ref{fig:ECA-test} shows the schedule for CSMA/ECA$_{\text{test}}$, where a drift can be appreciated at STA 1's second transmission. Similar effects resulting in collisions are responsible for the deviation from the maximum achievable throughput represented by the dotted line in Figure~\ref{fig:throughput}.
 
 %, four stations (STA) are shown running CSMA/ECA$_{\text{test}}$ and CSMA/CA in separate tests. Each point identifies a transmitter, while the horizontal axis marks the time. The upper side of the figure shows CSMA/ECA$_{\text{test}}$, where it is possible to see the periodic transmissions of each station. CSMA/CA transmitters (below) access the channel according to a random backoff: being prone to collisions. 
 
@@ -157,17 +159,17 @@ Even though a higher throughput is achieved, CSMA/ECA$_{\text{test}}$ nodes do n
 
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.75\linewidth, angle=-90]{figures/timeOfArrivals-points-multiplot.eps}
-		\caption{CSMA/ECA$_{\text{test}}$ and CSMA/CA transmissions under saturation.}
+		\includegraphics[width=0.4\linewidth, angle=-90]{figures/timeOfArrivals-points.eps}
+		\caption{CSMA/ECA$_{\text{test}}$ transmissions under saturation. In this figure $B_{d}=256$, for increased robustness against slot drift.}
 		\label{fig:ECA-test}
 	\end{figure}
 
-
 \section{Conclusions}
 %CSMA/ECA$_{\text{test}}$ builds a collision-free schedule in a totally distributed way, resulting in a throughput increase relative to CSMA/CA.
-The demo shows how CSMA/ECA can converge to a TDMA-like schedule by making small modifications to the WNIC's firmware; having as a result a throughput increase over the current MAC scheme in WLANs.
+Channel errors, clock drift, and other hardware imperfections prevent CSMA/ECA from reaching a collision-free schedule. However, this demo shows that in a practical setup CSMA/ECA still outperforms CSMA/CA. The performance improvement is due to the fact that deterministic stations do not contend against each other and enjoy a reduced collision probability.
 
-Although this is an initial implementation in commercial hardware of the proposed protocol, it demonstrates that the throughput gains previously observed by means of simulations can be also achieved in a testbed. Further performance improvements are possible by just prototyping the same protocol in hardware with more accurate clocks.
+%Although this is an initial implementation of the proposed protocol in commercial hardware, it demonstrates that the throughput gains previously observed by means of simulations can be also achieved in a testbed. 
+Further performance improvements are possible by prototyping the same protocol in hardware with more accurate clocks.
 
 %\section{Acknowledgements}
 %Work partially supported by the Spanish and the Catalan governments: CISNETS (TEC2012-32354) and AGAUR SGR2009-617, respectively.
